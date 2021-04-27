@@ -1,10 +1,6 @@
 package graph;
 
-import com.sun.corba.se.impl.orbutil.graph.Graph;
-
 import java.util.*;
-import java.util.stream.Collectors;
-
 
 public class DiGraphImpl implements DiGraph{
 
@@ -63,12 +59,18 @@ public class DiGraphImpl implements DiGraph{
 
 	@Override
 	public Boolean removeEdge(GraphNode fromNode, GraphNode toNode) {
-		return null;
+		return fromNode.removeNeighbor(toNode);
 	}
 
 	@Override
 	public Boolean setEdgeValue(GraphNode fromNode, GraphNode toNode, Integer newWeight) {
-		return null;
+		if (fromNode == null || toNode == null) return false; // nodes don't exist, can't set the edge
+		// Remove the neighbor, if success, re-add the neighbor with the new weight
+		if (removeEdge(fromNode, toNode)) {
+			fromNode.addNeighbor(toNode,newWeight);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -83,34 +85,50 @@ public class DiGraphImpl implements DiGraph{
 
 	@Override
 	public Boolean nodesAreAdjacent(GraphNode fromNode, GraphNode toNode) {
-		return fromNode.getNeighbors().contains(toNode) && toNode.getNeighbors().contains(fromNode);
+		return fromNode.getNeighbors().contains(toNode) || toNode.getNeighbors().contains(fromNode);
 	}
 
 	@Override
 	public Boolean nodeIsReachable(GraphNode fromNode, GraphNode toNode) {
 		if (fromNode.getNeighbors().contains(toNode)) return true;
-		Set<GraphNode> result = getPathToNode(fromNode, toNode, new ArrayList<>());
+		Set<GraphNode> result = beginIterateBestPath(fromNode, toNode, new HashSet<>(), fromNode);
 		return result.contains(toNode);
 	}
-	private Set<GraphNode> getPathToNode(GraphNode start, GraphNode dest, List<GraphNode> alreadyVisited) {
-		System.out.println("start.getValue() = " + start.getValue());
-		Set<GraphNode> nodes = new HashSet<>();
-		alreadyVisited.add(start);
-		List<GraphNode> neighbors = start.getNeighbors();
-		if (neighbors.size() > 0) {
-			System.out.println("neighbors.contains(dest) = " + neighbors.contains(dest));
-			if (neighbors.contains(dest)) return nodes; // Returning here effects the recursion. Find out the interaction
-			nodes.addAll(start.getNeighbors());
-			for (GraphNode neighbor : start.getNeighbors()) {
-				if (!alreadyVisited.contains(neighbor))
-					nodes.addAll(getPathToNode(neighbor, dest, alreadyVisited));
-			}
-		}
-		String graphNodes = nodes.stream().map(GraphNode::getValue)
-				.collect(Collectors.joining(", "));
-		System.out.println("graphNodes = " + graphNodes);
 
-		return nodes;
+	Set<GraphNode> bestPath = null;
+	private Set<GraphNode> beginIterateBestPath(GraphNode start, GraphNode dest, Set<GraphNode> visited,  GraphNode firstValue) {
+		// Create a set we can track outside the recursion
+		bestPath = new HashSet<>();
+		// Recursion results in the shortest hop path from start to dest
+		Set<GraphNode> pathResult = new HashSet<>(iterateBestPath(start, dest, visited, firstValue));
+		// GCollection
+		bestPath = null;
+		return pathResult;
+	}
+
+	private Set<GraphNode> iterateBestPath(GraphNode start, GraphNode dest, Set<GraphNode> visited, GraphNode firstValue) {
+
+		List<GraphNode> neighbors = start.getNeighbors();
+		// Add the start node to the visited list. start IS UPDATED RECURSIVELY
+		visited.add(start);
+		if (neighbors.size() > 0) {
+			// If the neighbors of the start node contains the dest node we can stop.
+			if (neighbors.contains(dest)) {
+				// If the successful visited set is smaller than the previous bestPath then we have a new bestPath
+				if (bestPath.size() == 0 || bestPath.size() > visited.size()) bestPath = new HashSet<>(visited);
+			}
+			for (GraphNode neighbor : neighbors) {
+				// Prevent infinite loops on cyclic nodes
+				if (neighbor.equals(start)) continue;
+				// Iterate through this function again with neighbor as the start node
+				iterateBestPath(neighbor, dest, visited, firstValue);
+			}
+		} else {
+			// There are no more neighbors, clear the visitor list and insert the first node entered and let the iterations continue.
+			visited.clear();
+			visited.add(firstValue);
+		}
+		return bestPath;
 	}
 
 	@Override
@@ -134,16 +152,13 @@ public class DiGraphImpl implements DiGraph{
 	@Override
 	public int fewestHops(GraphNode fromNode, GraphNode toNode) {
 //		if (fromNode.getNeighbors().contains(toNode)) return 1;
-		Set<GraphNode> result = getPathToNode(fromNode, toNode, new ArrayList<>());
-		return result.size();
+		Set<GraphNode> bestPath = beginIterateBestPath(fromNode, toNode, new HashSet<>(), fromNode);
+		return bestPath.size();
 	}
 
 	@Override
 	public int shortestPath(GraphNode fromNode, GraphNode toNode) {
-		if (nodeIsReachable(fromNode, toNode)) {
-			int sum = 0;
 
-		}
 		return -1;
 	}
 }

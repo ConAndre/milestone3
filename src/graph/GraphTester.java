@@ -1,10 +1,5 @@
 package graph;
 
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -59,6 +54,8 @@ public class GraphTester {
 		graph.addEdge(graphNode4, graphNode5, rand.nextInt(100));
 		// 5 cycles to itself
 		graph.addEdge(graphNode5, graphNode5, rand.nextInt(100));
+		// 5 can jump to 13
+		graph.addEdge(graphNode5, graphNode13, rand.nextInt(100));
 		// 6-10 are connected
 		graph.addEdge(graphNode6, graphNode7, rand.nextInt(100));
 		graph.addEdge(graphNode7, graphNode8, rand.nextInt(100));
@@ -74,8 +71,8 @@ public class GraphTester {
 
 		String graphNodes = graph.getNodes().stream().map(GraphNode::getValue)
 				.collect(Collectors.joining(", "));
-		System.out.println("graphNodes = " + graphNodes);
-		System.out.println("Cyclic = " + graphNode5.getValue());
+//		System.out.println("graphNodes = " + graphNodes);
+//		System.out.println("Cyclic = " + graphNode5.getValue());
 		//
 
 		//describe
@@ -89,7 +86,7 @@ public class GraphTester {
 
 		//test hasCycles
 //		System.out.println("graph.hasCycles() = " + graph.hasCycles());
-		System.out.println("graph.removeNode(graphNode5) = " + graph.removeNode(graphNode5));
+//		System.out.println("graph.removeNode(graphNode5) = " + graph.removeNode(graphNode5));
 //		System.out.println("graph.hasCycles() = " + graph.hasCycles());
 		
 		//test fewest hops
