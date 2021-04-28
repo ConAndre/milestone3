@@ -75,7 +75,7 @@ public class DiGraphImpl implements DiGraph{
 
 	@Override
 	public Integer getEdgeValue(GraphNode fromNode, GraphNode toNode) {
-		return null;
+		return fromNode.getDistanceToNeighbor(toNode);
 	}
 
 	@Override
@@ -96,17 +96,17 @@ public class DiGraphImpl implements DiGraph{
 	}
 
 	Set<GraphNode> bestPath = null;
-	private Set<GraphNode> beginIterateBestPath(GraphNode start, GraphNode dest, Set<GraphNode> visited,  GraphNode firstValue) {
+	private Set<GraphNode> beginIterateBestPath(GraphNode start, GraphNode dest, Set<GraphNode> visited,  GraphNode firstValue ) {
 		// Create a set we can track outside the recursion
 		bestPath = new HashSet<>();
 		// Recursion results in the shortest hop path from start to dest
-		Set<GraphNode> pathResult = new HashSet<>(iterateBestPath(start, dest, visited, firstValue));
+		Set<GraphNode> pathResult = new HashSet<>(iterateBestHopPath(start, dest, visited, firstValue));
 		// GCollection
 		bestPath = null;
 		return pathResult;
 	}
 
-	private Set<GraphNode> iterateBestPath(GraphNode start, GraphNode dest, Set<GraphNode> visited, GraphNode firstValue) {
+	private Set<GraphNode> iterateBestHopPath(GraphNode start, GraphNode dest, Set<GraphNode> visited, GraphNode firstValue) {
 
 		List<GraphNode> neighbors = start.getNeighbors();
 		// Add the start node to the visited list. start IS UPDATED RECURSIVELY
@@ -114,6 +114,7 @@ public class DiGraphImpl implements DiGraph{
 		if (neighbors.size() > 0) {
 			// If the neighbors of the start node contains the dest node we can stop.
 			if (neighbors.contains(dest)) {
+				visited.add(dest);
 				// If the successful visited set is smaller than the previous bestPath then we have a new bestPath
 				if (bestPath.size() == 0 || bestPath.size() > visited.size()) bestPath = new HashSet<>(visited);
 			}
@@ -121,7 +122,7 @@ public class DiGraphImpl implements DiGraph{
 				// Prevent infinite loops on cyclic nodes
 				if (neighbor.equals(start)) continue;
 				// Iterate through this function again with neighbor as the start node
-				iterateBestPath(neighbor, dest, visited, firstValue);
+				iterateBestHopPath(neighbor, dest, visited, firstValue);
 			}
 		} else {
 			// There are no more neighbors, clear the visitor list and insert the first node entered and let the iterations continue.
@@ -151,14 +152,38 @@ public class DiGraphImpl implements DiGraph{
 
 	@Override
 	public int fewestHops(GraphNode fromNode, GraphNode toNode) {
-//		if (fromNode.getNeighbors().contains(toNode)) return 1;
+		if (fromNode.equals(toNode)) return 0;
+		if (fromNode.getNeighbors().contains(toNode)) return 1;
 		Set<GraphNode> bestPath = beginIterateBestPath(fromNode, toNode, new HashSet<>(), fromNode);
-		return bestPath.size();
+		return bestPath.size()-1;
 	}
 
+	private int sumWeight = 0;
 	@Override
 	public int shortestPath(GraphNode fromNode, GraphNode toNode) {
-
-		return -1;
+		if (fromNode.equals(toNode)) return 0;
+		if (fromNode.getNeighbors().contains(toNode)) return fromNode.getDistanceToNeighbor(toNode);
+		int result = iterateBestWeightPath(fromNode, toNode, 0);
+		sumWeight = 0;
+		return result;
 	}
+	private int iterateBestWeightPath(GraphNode start, GraphNode dest, int weight) {
+		List<GraphNode> neighbors = start.getNeighbors();
+		if (neighbors.size() > 0) {
+			// If the neighbors of the start node contains the dest node we can stop.
+			if (neighbors.contains(dest)) {
+				// If the successful visited set is smaller than the previous bestPath then we have a new bestPath
+				if (sumWeight == 0 || sumWeight > weight) sumWeight = weight;
+			}
+			for (GraphNode neighbor : neighbors) {
+				// Prevent infinite loops on cyclic nodes
+				if (neighbor.equals(start)) continue;
+				weight += start.getDistanceToNeighbor(neighbor);
+				// Iterate through this function again with neighbor as the start node
+				iterateBestWeightPath(neighbor, dest, weight);
+			}
+		}
+		return sumWeight;
+	}
+
 }

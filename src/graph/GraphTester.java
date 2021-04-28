@@ -68,32 +68,34 @@ public class GraphTester {
 		graph.addEdge(graphNode14, graphNode15, rand.nextInt(100));
 		// 11 can jump to 14
 		graph.addEdge(graphNode11, graphNode14, rand.nextInt(100));
+		System.out.println("Definitions:\n	(1-5) = 1 through 5\n	(5->5) 5 jumps to 5");
+		System.out.println("Paths:\n	1-5\n		5->5\n		5->13\n	6-10\n	11-15\n		11->14");
 
 		String graphNodes = graph.getNodes().stream().map(GraphNode::getValue)
 				.collect(Collectors.joining(", "));
-//		System.out.println("graphNodes = " + graphNodes);
-//		System.out.println("Cyclic = " + graphNode5.getValue());
-		//
+		System.out.println("graphNodes = " + graphNodes);
+		System.out.println("Cyclic = " + graphNode5.getValue());
 
 		//describe
 
-		//test reachablity
-//		System.out.println("graph.nodeIsReachable(graphNode11,graphNode15) " + graph.nodeIsReachable(graphNode11, graphNode15));
-//		System.out.println("graph.nodeIsReachable(graphNode1,graphNode6) " + graph.nodeIsReachable(graphNode1,graphNode6));
-//		System.out.println("graph.nodeIsReachable(graphNode1,graphNode10) " + graph.nodeIsReachable(graphNode1,graphNode10));
-//		System.out.println("graph.nodeIsReachable(graphNode5,graphNode1) " + graph.nodeIsReachable(graphNode5,graphNode1));
-//		System.out.println("graph.nodeIsReachable(graphNode5,graphNode5) " + graph.nodeIsReachable(graphNode5,graphNode5));
+		//test reachability
+		System.out.println("graph.nodeIsReachable(graphNode11,graphNode15) " + graph.nodeIsReachable(graphNode11, graphNode15));
+		System.out.println("graph.nodeIsReachable(graphNode1,graphNode6) " + graph.nodeIsReachable(graphNode1,graphNode6));
+		System.out.println("graph.nodeIsReachable(graphNode1,graphNode10) " + graph.nodeIsReachable(graphNode1,graphNode10));
+		System.out.println("graph.nodeIsReachable(graphNode5,graphNode1) " + graph.nodeIsReachable(graphNode5,graphNode1));
+		System.out.println("graph.nodeIsReachable(graphNode5,graphNode5) " + graph.nodeIsReachable(graphNode5,graphNode5));
 
 		//test hasCycles
-//		System.out.println("graph.hasCycles() = " + graph.hasCycles());
-//		System.out.println("graph.removeNode(graphNode5) = " + graph.removeNode(graphNode5));
-//		System.out.println("graph.hasCycles() = " + graph.hasCycles());
+		System.out.println("graph.hasCycles() = " + graph.hasCycles());
+		System.out.println("graph.removeNode(graphNode5) = " + graph.removeNode(graphNode5));
+		System.out.println("graph.hasCycles() = " + graph.hasCycles());
 		
 		//test fewest hops
 		System.out.println("graph.fewestHops(graphNode11, graphNode15) = " + graph.fewestHops(graphNode11, graphNode15));
-		
+
 		//test shortest path
-		
+		System.out.println("graph.shortestPath(graphNode11, graphNode15) = " + graph.shortestPath(graphNode11, graphNode15));
+
 		
 		
 	}
